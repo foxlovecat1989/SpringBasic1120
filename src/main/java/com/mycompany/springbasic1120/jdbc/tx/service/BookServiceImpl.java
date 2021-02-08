@@ -1,8 +1,10 @@
 package com.mycompany.springbasic1120.jdbc.tx.service;
 
 import com.mycompany.springbasic1120.jdbc.tx.dao.BookDao;
+import com.mycompany.springbasic1120.jdbc.tx.exception.InsufficientAmount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -11,9 +13,11 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private BookDao bookDao;
     
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED, 
+            timeout = 2,
+            rollbackFor = {InsufficientAmount.class})
     @Override
-    public void buyOne(Integer wid, Integer bid) {
+    public void buyOne(Integer wid, Integer bid) throws InsufficientAmount{
         int price = bookDao.getPrice(bid);
         System.out.println("BookService 交易開始");
         bookDao.updateStock(bid);
